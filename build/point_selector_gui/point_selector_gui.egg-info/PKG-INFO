@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: point-selector-gui
+Version: 0.0.0
+Summary: Captures two 2D clicks from the realsense 2 camera display and converts them to two 3D coordinate points
+Home-page: UNKNOWN
+Maintainer: jasdeep_renny
+Maintainer-email: jasrenny@hotmail.com
+License: Apache-2.0
+Platform: UNKNOWN
+
+UNKNOWN
+

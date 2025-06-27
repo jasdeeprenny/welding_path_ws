@@ -1,0 +1,33 @@
+[0.523s] Invoking command in '/home/jasdeep_renny/welding_path_ws/src/point_selector_gui': PYTHONPATH=/home/jasdeep_renny/welding_path_ws/build/point_selector_gui/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/point_selector_gui build --build-base /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build install --record /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/install.log --single-version-externally-managed install_data
+[0.631s] running egg_info
+[0.632s] creating ../../build/point_selector_gui/point_selector_gui.egg-info
+[0.632s] writing ../../build/point_selector_gui/point_selector_gui.egg-info/PKG-INFO
+[0.632s] writing dependency_links to ../../build/point_selector_gui/point_selector_gui.egg-info/dependency_links.txt
+[0.632s] writing entry points to ../../build/point_selector_gui/point_selector_gui.egg-info/entry_points.txt
+[0.632s] writing requirements to ../../build/point_selector_gui/point_selector_gui.egg-info/requires.txt
+[0.633s] writing top-level names to ../../build/point_selector_gui/point_selector_gui.egg-info/top_level.txt
+[0.633s] writing manifest file '../../build/point_selector_gui/point_selector_gui.egg-info/SOURCES.txt'
+[0.633s] reading manifest file '../../build/point_selector_gui/point_selector_gui.egg-info/SOURCES.txt'
+[0.635s] writing manifest file '../../build/point_selector_gui/point_selector_gui.egg-info/SOURCES.txt'
+[0.635s] running build
+[0.635s] running build_py
+[0.635s] creating /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build
+[0.635s] creating /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build/lib
+[0.635s] creating /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build/lib/point_selector_gui
+[0.635s] copying point_selector_gui/__init__.py -> /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build/lib/point_selector_gui
+[0.635s] running install
+[0.635s] running install_lib
+[0.636s] creating /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui
+[0.636s] copying /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build/lib/point_selector_gui/__init__.py -> /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui
+[0.636s] byte-compiling /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui/__init__.py to __init__.cpython-310.pyc
+[0.636s] running install_data
+[0.636s] creating /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/share/ament_index
+[0.636s] creating /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/share/ament_index/resource_index
+[0.636s] creating /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/share/ament_index/resource_index/packages
+[0.637s] copying resource/point_selector_gui -> /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/share/ament_index/resource_index/packages
+[0.637s] copying package.xml -> /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/share/point_selector_gui
+[0.637s] running install_egg_info
+[0.637s] Copying ../../build/point_selector_gui/point_selector_gui.egg-info to /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui-0.0.0-py3.10.egg-info
+[0.638s] running install_scripts
+[0.647s] writing list of installed files to '/home/jasdeep_renny/welding_path_ws/build/point_selector_gui/install.log'
+[0.661s] Invoked command in '/home/jasdeep_renny/welding_path_ws/src/point_selector_gui' returned '0': PYTHONPATH=/home/jasdeep_renny/welding_path_ws/build/point_selector_gui/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/point_selector_gui build --build-base /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build install --record /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/install.log --single-version-externally-managed install_data

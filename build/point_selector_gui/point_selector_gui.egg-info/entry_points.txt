@@ -1,0 +1,3 @@
+[console_scripts]
+point_selector = point_selector_gui.point_selector_node:main
+

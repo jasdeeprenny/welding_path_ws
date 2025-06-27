@@ -1,0 +1,22 @@
+running egg_info
+writing ../../build/point_selector_gui/point_selector_gui.egg-info/PKG-INFO
+writing dependency_links to ../../build/point_selector_gui/point_selector_gui.egg-info/dependency_links.txt
+writing entry points to ../../build/point_selector_gui/point_selector_gui.egg-info/entry_points.txt
+writing requirements to ../../build/point_selector_gui/point_selector_gui.egg-info/requires.txt
+writing top-level names to ../../build/point_selector_gui/point_selector_gui.egg-info/top_level.txt
+reading manifest file '../../build/point_selector_gui/point_selector_gui.egg-info/SOURCES.txt'
+writing manifest file '../../build/point_selector_gui/point_selector_gui.egg-info/SOURCES.txt'
+running build
+running build_py
+copying point_selector_gui/point_selector_node.py -> /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build/lib/point_selector_gui
+running install
+running install_lib
+copying /home/jasdeep_renny/welding_path_ws/build/point_selector_gui/build/lib/point_selector_gui/point_selector_node.py -> /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui
+byte-compiling /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui/point_selector_node.py to point_selector_node.cpython-310.pyc
+running install_data
+running install_egg_info
+removing '/home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/point_selector_gui/point_selector_gui.egg-info to /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/python3.10/site-packages/point_selector_gui-0.0.0-py3.10.egg-info
+running install_scripts
+Installing point_selector script to /home/jasdeep_renny/welding_path_ws/install/point_selector_gui/lib/point_selector_gui
+writing list of installed files to '/home/jasdeep_renny/welding_path_ws/build/point_selector_gui/install.log'

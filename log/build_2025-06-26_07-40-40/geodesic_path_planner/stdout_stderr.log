@@ -1,0 +1,31 @@
+running egg_info
+creating ../../build/geodesic_path_planner/geodesic_path_planner.egg-info
+writing ../../build/geodesic_path_planner/geodesic_path_planner.egg-info/PKG-INFO
+writing dependency_links to ../../build/geodesic_path_planner/geodesic_path_planner.egg-info/dependency_links.txt
+writing entry points to ../../build/geodesic_path_planner/geodesic_path_planner.egg-info/entry_points.txt
+writing requirements to ../../build/geodesic_path_planner/geodesic_path_planner.egg-info/requires.txt
+writing top-level names to ../../build/geodesic_path_planner/geodesic_path_planner.egg-info/top_level.txt
+writing manifest file '../../build/geodesic_path_planner/geodesic_path_planner.egg-info/SOURCES.txt'
+reading manifest file '../../build/geodesic_path_planner/geodesic_path_planner.egg-info/SOURCES.txt'
+writing manifest file '../../build/geodesic_path_planner/geodesic_path_planner.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/jasdeep_renny/welding_path_ws/build/geodesic_path_planner/build
+creating /home/jasdeep_renny/welding_path_ws/build/geodesic_path_planner/build/lib
+creating /home/jasdeep_renny/welding_path_ws/build/geodesic_path_planner/build/lib/geodesic_path_planner
+copying geodesic_path_planner/__init__.py -> /home/jasdeep_renny/welding_path_ws/build/geodesic_path_planner/build/lib/geodesic_path_planner
+running install
+running install_lib
+creating /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/lib/python3.10/site-packages/geodesic_path_planner
+copying /home/jasdeep_renny/welding_path_ws/build/geodesic_path_planner/build/lib/geodesic_path_planner/__init__.py -> /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/lib/python3.10/site-packages/geodesic_path_planner
+byte-compiling /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/lib/python3.10/site-packages/geodesic_path_planner/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/share/ament_index
+creating /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/share/ament_index/resource_index
+creating /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/share/ament_index/resource_index/packages
+copying resource/geodesic_path_planner -> /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/share/ament_index/resource_index/packages
+copying package.xml -> /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/share/geodesic_path_planner
+running install_egg_info
+Copying ../../build/geodesic_path_planner/geodesic_path_planner.egg-info to /home/jasdeep_renny/welding_path_ws/install/geodesic_path_planner/lib/python3.10/site-packages/geodesic_path_planner-0.0.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/jasdeep_renny/welding_path_ws/build/geodesic_path_planner/install.log'
