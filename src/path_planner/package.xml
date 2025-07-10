@@ -1,18 +1,25 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>point_selector_gui</name>
+  <name>path_planner</name>
   <version>0.0.0</version>
-  <description>Captures two 2D clicks on the realsense2 camera display and converts them to two 3D coordinate points.</description>
+  <description>Plans a 3D Pose Path between 2 2D pixel coordinates.</description>
   <maintainer email="jasrenny@hotmail.com">jasdeep_renny</maintainer>
   <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
 
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>cv_bridge</depend>
-  <depend>message_filters</depend>
+  <depend>std_msgs</depend>
   <depend>welding_path_interfaces</depend>
+
+  <exec_depend>numpy</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-scikit-image</exec_depend>
+  <exec_depend>sensor_msgs-py</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

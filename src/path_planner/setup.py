@@ -1,6 +1,8 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
-package_name = 'point_selector_gui'
+package_name = 'path_planner'
 
 setup(
     name=package_name,
@@ -12,20 +14,21 @@ setup(
         ('share/' + package_name, ['package.xml']),
     ],
     install_requires=[
-        'setuptools',
-        'numpy',
-        'opencv-python',
-        'pyrealsense2',
+        'setuptools', 
+        'numpy', 
+        'scikit-image', 
+        'open3d', 
+        'tf_transformations',
     ],
     zip_safe=True,
     maintainer='jasdeep_renny',
-    maintainer_email='jasrenny@hotmail.com',
-    description='Captures two 2D clicks from the realsense 2 camera display and converts them to two 3D coordinate points',
+    maintainer_email='jasrenn@hotmail.com',
+    description='Plans a 3D path between two clicked pixel points',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'point_selector = point_selector_gui.point_selector_node:main'
+            'path_planner = path_planner.path_planner_node:main',
         ],
     },
 )

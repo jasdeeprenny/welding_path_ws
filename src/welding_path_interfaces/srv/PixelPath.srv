@@ -1,0 +1,5 @@
+int32[2] pixel_start
+int32[2] pixel_end
+---
+bool success
+string message

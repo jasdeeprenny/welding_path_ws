@@ -2,8 +2,8 @@ import rclpy
 from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
-from sensor.msgs.msg import PointCloud2
-
+# from sensor.msgs.msg import PointCloud2
+from welding_path_interfaces.srv import PixelPath
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 
 from cv_bridge import CvBridge
@@ -11,6 +11,8 @@ import cv2 as cv
 
 import numpy as np
 import pyrealsense2 as rs
+
+from rclpy.qos import qos_profile_sensor_data
 
 QUEUE_SIZE = 10
 NUM_CLICKS = 2
@@ -20,12 +22,21 @@ class PointSelector(Node):
     def __init__(self):
         super().__init__('point_selector_node')
 
+        # Initialise client for pixel_path service
+        self.cli = self.create_client(
+            PixelPath,
+            'pixel_path'
+        )
+        while not self.cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.req = PixelPath.Request()
+
         # Subscribes to rgb image for opencv gui display
         self.gui_display_sub = self.create_subscription(
             Image,
             '/camera/camera/color/image_raw',
             self.gui_display_callback,
-            QUEUE_SIZE
+            qos_profile=qos_profile_sensor_data
         )
 
         # Subscribes to aligned point cloud
@@ -40,17 +51,20 @@ class PointSelector(Node):
         self.rgb_sub = Subscriber(
             self, 
             Image, 
-            '/camera/camera/color/image_raw'
+            '/camera/camera/color/image_raw',
+            qos_profile=qos_profile_sensor_data
         )
         self.depth_sub = Subscriber(
             self, 
             Image, 
-            '/camera/camera/aligned_depth_to_color/image_raw'
+            '/camera/camera/aligned_depth_to_color/image_raw',
+            qos_profile=qos_profile_sensor_data
         )
         self.camera_intrinsics_sub = Subscriber(
             self, 
             CameraInfo,
-            '/camera/camera/color/camera_info'
+            '/camera/camera/color/camera_info',
+            qos_profile=qos_profile_sensor_data
         )
 
         self.approx_sync = ApproximateTimeSynchronizer(
@@ -70,12 +84,20 @@ class PointSelector(Node):
         cv.namedWindow('RGB Stream', cv.WINDOW_NORMAL)
         cv.setMouseCallback('RGB Stream', self.mouse_callback)
         
-        self.clicked_points = []    # array of clicked points [(u, v), ...]
+        self.clicked_points = []    # array of clicked points [[u, v], ...]
         self.clicked_points_3D = [] # array of 3D clicked coordinates [(x, y, z) ...]
     
     # def point_cloud_callback(self, point_cloud_msg: PointCloud2) -> None:
     #     return
     #     print("Point Cloud Recieved!")
+
+    def send_request(self, pixel_start, pixel_end):
+        """
+        ...
+        """
+        self.req.pixel_start = pixel_start
+        self.req.pixel_end = pixel_end
+        return self.cli.call_async(self.req)
 
     def gui_display_callback(self, msg: Image) -> None:
         """
@@ -89,7 +111,7 @@ class PointSelector(Node):
         Returns None
         """
         
-        #print("Colour info recieved!")
+        # print("Colour info recieved!")
 
         self.color_image = msg
 
@@ -124,7 +146,7 @@ class PointSelector(Node):
         if (event == cv.EVENT_LBUTTONDOWN):
             print(f"Mouse clicked at ({u}, {v})")
 
-            self.clicked_points.append((u, v))
+            self.clicked_points.append([u, v])
 
             if (len(self.clicked_points) >= NUM_CLICKS):
                 print("Max num clicks reached")
@@ -132,6 +154,9 @@ class PointSelector(Node):
                 # destroy window and disable callbacks
                 cv.destroyWindow('RGB Stream')
                 cv.setMouseCallback('RGB Stream', lambda *args : None)
+
+                # send request to path_planner node
+                self.send_request(self.clicked_points[0], self.clicked_points[1])
     
     def synced_callback(self, 
                         rgb_msg: Image, 
@@ -202,7 +227,6 @@ class PointSelector(Node):
             print(f"[{i+1}] Pixel (u={u}, v={v}) → 3D Point (x={x:.3f}, y={y:.3f}, z={z:.3f}) [m]")
         print("========================================\n")
 
-    
     def camera_info_to_rs_intrinsics(self, camera_info_msg: CameraInfo) -> rs.intrinsics:
         """
         Helper method that converts ROS2 sensor_msgs/CameraInfo to pyrealsense2
