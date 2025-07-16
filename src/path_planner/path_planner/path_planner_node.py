@@ -14,11 +14,18 @@ import open3d as o3d
 from geometry_msgs.msg import Pose, PoseArray, Point, Quaternion
 from tf_transformations import quaternion_from_matrix
 
+import time
+
 class PathPlannerService(Node):
 
     def __init__(self):
         super().__init__('path_planner_node')
         print("Hello from pathPlanner Node")
+
+        self.declare_parameter('num_interpolated_points', 30)
+        self.declare_parameter('point_jump_threshold', 0.05)
+
+        # cache initial values (optional)
 
         # Initialise service to recieve path planning requests
         self.srv = self.create_service(
@@ -36,23 +43,28 @@ class PathPlannerService(Node):
         )
 
         # Initialise pose array publisher
-        # self.pose_array_pub = self.create_publisher(PoseArray, 'pose_array_path', 10)
+        self.pose_array_pub = self.create_publisher(
+            PoseArray,
+            '/pose_array',
+            10
+        )
+
         self.point_cloud_msg = None
         self.point_cloud_array = None
-    
-    def calculate_2d_path(self, pixel_start, pixel_end, num_points=30):
+
+    def calculate_linear_path(self, pixel_start, pixel_end, num_points=30):
         """
-        Interpolates a line of pixel coordinates between two points (inclusive).
+        Interpolates a linear line of pixel coordinates between two points
+        (inclusive).
 
         Args:
-            pixel_start (tuple): Starting pixel coordinate (x, y).
-            pixel_end (tuple): Ending pixel coordinate (x, y).
+            pixel_start (tuple): Starting pixel coordinate (x, y)
+            pixel_end (tuple): Ending pixel coordinate (x, y)
             num_points (int): Number of points to interpolate along the line.
-
+        
         Returns:
-            List[Tuple[int, int]]: List of integer pixel coordinates.
+            
         """
-
         x_vals = np.linspace(pixel_start[0], pixel_end[0], num_points)
         y_vals = np.linspace(pixel_start[1], pixel_end[1], num_points)
 
@@ -65,7 +77,44 @@ class PathPlannerService(Node):
                 seen.add(point)
                 unique_pixels.append(point)
 
-        return unique_pixels
+        return unique_pixels    
+
+    def calculate_2d_path(self, clicked_points, num_points=30):
+        """
+        Interpolates a line of pixel coordinates between two points (inclusive).
+
+        Args:
+            pixel_start (tuple): Starting pixel coordinate (x, y).
+            pixel_end (tuple): Ending pixel coordinate (x, y).
+            num_points (int): Number of points to interpolate along the line.
+
+        Returns:
+            List[Tuple[int, int]]: List of integer pixel coordinates.
+        """
+        pixels = []
+        for i in range(len(clicked_points) - 1):
+            pixels.extend(
+                self.calculate_linear_path(
+                    (clicked_points[i].x, clicked_points[i].y), 
+                    (clicked_points[i+1].x, clicked_points[i+1].y)
+                )
+            )
+        return pixels
+
+
+        # x_vals = np.linspace(pixel_start[0], pixel_end[0], num_points)
+        # y_vals = np.linspace(pixel_start[1], pixel_end[1], num_points)
+
+        # pixel_points = [(int(round(x)), int(round(y))) for x, y in zip(x_vals, y_vals)]
+
+        # seen = set()
+        # unique_pixels = []
+        # for point in pixel_points:
+        #     if point not in seen:
+        #         seen.add(point)
+        #         unique_pixels.append(point)
+
+        # return unique_pixels
         
     def pixel_path_callback(self, request, response):
         """
@@ -88,10 +137,18 @@ class PathPlannerService(Node):
         """
 
         print("====Request Recieved!====")
-        print(f"Point A: {request.pixel_start} -> Point B: {request.pixel_end}")
+        print("Clicked points:")
+        for pixel in request.clicked_points:
+            print(f"Recv Pixel: ({pixel.x}, {pixel.y})")
+
+        pixel_start = (request.clicked_points[0].x, request.clicked_points[0].y)
+        pixel_end = (request.clicked_points[1].x, request.clicked_points[1].y)
+
+        print(f"Point A: {pixel_start} -> Point B: {pixel_end}")
     
         # path planning
-        pixel_path = self.calculate_2d_path(request.pixel_start, request.pixel_end)
+        # pixel_path = self.calculate_2d_path(pixel_start, pixel_end)
+        pixel_path = self.calculate_2d_path(request.clicked_points)
         print("___2D Linear Path___")
         print(pixel_path)
 
@@ -108,8 +165,8 @@ class PathPlannerService(Node):
 
         # find poses of each point on 3d path
         pose_array = self.generate_pose_array(point_path)
-
-        # publish as PoseArray to visualise in Rviz2
+        self.pose_array_pub.publish(pose_array)
+        print(f"Published Pose Array with {len(pose_array.poses)}!")
 
         # response?
         # if success -> response: response.success = True ...
@@ -206,28 +263,32 @@ class PathPlannerService(Node):
         tangents = []
 
         for i in range(len(point_path)):
-            curr_point = np.array(point_path[i])
-
-            if (i == 0):
-                next_point = np.array(point_path[i+1])
-                diff = next_point - curr_point
-
-            elif (i == len(point_path) - 1):
-                prev_point = np.array(point_path[i-1])
-                diff = curr_point - prev_point
+            curr_point = point_path[i]
+            if (curr_point == (0, 0, 0)):
+                tangents.append(None)
+                continue
             
+            prev_point = point_path[i-1] if i > 0 else None
+            next_point = point_path[i+1] if i < len(point_path)-1 else None
+
+            prev_valid = prev_point is not None and prev_point != (0, 0, 0)
+            next_valid = next_point is not None and next_point != (0, 0, 0)
+
+            if (prev_valid and next_valid):
+                diff = np.array(next_point) - np.array(prev_point)
+            elif (prev_valid):
+                diff = np.array(curr_point) - np.array(prev_point)
+            elif (next_valid):
+                diff = np.array(next_point) - np.array(curr_point)
             else:
-                prev_point = np.array(point_path[i-1])
-                next_point = np.array(point_path[i+1])
-                diff = next_point - prev_point
+                tangents.append(None)
+                continue
             
             norm = np.linalg.norm(diff)
-
-            if (norm == 0):     # prev_point and next_point identical
+            if (norm == 0):
                 tangent = None
             else:
-                tangent = diff / norm   # normalise vector
-
+                tangent = diff / norm
             tangents.append(tangent)
         
         return tangents
@@ -248,7 +309,6 @@ class PathPlannerService(Node):
                                         point_path; None if point is invalid.
 
         """
-
         open3d_point_cloud = self.pointcloud2_to_open3d()
 
         # compute surface normals for each point in full cloud
@@ -258,6 +318,7 @@ class PathPlannerService(Node):
                 max_nn=max_nn
             )
         )
+
         # ensures all normals point in the same hemisphere
         open3d_point_cloud.orient_normals_consistent_tangent_plane(k=max_nn)
 
@@ -282,6 +343,79 @@ class PathPlannerService(Node):
         
         return normals
 
+    def estimate_normal_vectors(
+        self, 
+        point_path, 
+        radius=0.02, 
+        min_nn=5,
+        viewpoint=np.array([0, 0, 0])
+    ):
+    """
+    Estimates surface normal vectors for 3D points in point_path using local
+    Principle Component Analysis (PCA).
+
+    For each 3D point in point_path, this method:
+        Searches neighbouring points within a specified radius in the
+            point_cloud.
+        Computes the covarianec matrix of the neighbourhood.
+        Extracts the normal vector as the eigenvector with the smallest 
+            eigenvalue.
+        Orients the normal to face toward the viewpoint (the camera frame's
+            origin).
+
+    If a point is invalid (0, 0, 0), None is returned as the normal for that 
+    point.
+
+    Args:
+        point_path: List of 3D coordinates for which normals are estimated.
+        radius: Search radius for neighbouring points (meters).
+        min_nn: Minimum number of neighbours required to estimate normal.
+        viewpoint: 3D vector indicating viewpoint to orient normals towards.
+    
+    Returns:
+        A list of normal vectors for each point in point_path.
+    """
+
+        open3d_point_cloud = self.pointcloud2_to_open3d()
+        kdtree = o3d.geometry.KDTreeFlann(open3d_point_cloud)
+        cloud_points = np.asarray(open3d_point_cloud.points)
+
+        normals = []
+        for point in point_path:
+            if (point == (0, 0, 0)):
+                normals.append(None)
+                continue
+
+            point_np = np.array(point, dtype=np.float64)
+
+            # find all neighbours within radius
+            [_, idxs, _] = kdtree.search_radius_vector_3d(point_np, radius)
+
+            if (len(idxs) < min_nn):
+                normals.append(None)
+                continue
+            
+            neighbours = cloud_points[idxs]
+            neighbours_centered = neighbours - np.mean(neighbours, axis=0)
+
+            covariance_matrix = np.dot(
+                neighbours_centered.T, 
+                neighbours_centered
+            )
+
+            eigenvals, eigenvects = np.linalg.eigh(covariance_matrix)
+            normal = eigenvects[:, 0]   # smallest eigenvalue
+
+            # ensuring normal points toward viewpoint
+            direction = viewpoint - point_np
+            if (np.dot(normal, direction) < 0):
+                normal = -normal
+            
+            unit_normal = normal / np.linalg.norm(normal)
+            normals.append(unit_normal)
+        
+        return normals
+
     def pointcloud2_to_open3d(self):
         """
         Converts a ROS2 sensor_msgs/msg/PointCloud2 message into an Open3d
@@ -296,20 +430,49 @@ class PathPlannerService(Node):
             field_names=("x", "y", "z"),
             skip_nans=True
         )
-        xyz = np.array(list(points))
-        
+        structured_array = np.array(list(points))
+        xyz = np.vstack((structured_array['x'], structured_array['y'], structured_array['z'])).T
+
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(xyz)
         return pcd
 
     def generate_pose_array(self, point_path):
+        """
+        Generates a ROS2 PoseArray from a list of 3D points.
+
+        For each valid point in point_path, this method computes the local
+        tangent (x-axis), estimates the surface normal (z-axis), and computes
+        the y-axis via cross product. Then it creates a quaternion from which
+        a Pose can be created.
+
+        Args:
+            point_path: List of 3D coordinates to convert into a PoseArray.
+        
+        Returns:
+            A PoseArray message containing poses with position and orientation
+            for each valid point in point_path.
+        """
 
         tangents = self.compute_tangent_vectors(point_path)
-        normals = self.compute_normal_vectors(point_path)
+        print("___Tangents___")
+        print(tangents)
+
+        # start = time.time()
+        # calculated_normals = self.compute_normal_vectors(point_path)
+        # end = time.time()
+        # print(f"___Calculated Normals {end - start:.4f}___")
+        # print(calculated_normals)
+
+        start_time = time.time()
+        normals = self.estimate_normal_vectors(point_path)
+        end_time = time.time()
+        print(f"__Estimated Normals: {end_time - start_time:.4f}__")
+        print(normals)
 
         pose_array = PoseArray()
-        pose_array.header.frame_id = "map"
-        pose_array.header.stamp = self.get_clock().now.to_msg()
+        pose_array.header.frame_id = "camera_depth_optical_frame"
+        pose_array.header.stamp = self.get_clock().now().to_msg()
 
         for i, (position, x_axis, z_axis) in enumerate(zip(point_path, tangents, normals)):
             if (position == (0, 0, 0)) or (x_axis is None) or (z_axis is None):
@@ -324,7 +487,7 @@ class PathPlannerService(Node):
             # re-orthohonalise axes
             x_axis = np.cross(y_axis, z_axis)
             x_axis /= np.linalg.norm(x_axis)
-            z_axis /= np.linalg.norm(z-axis)
+            z_axis /= np.linalg.norm(z_axis)
 
             # build rotation matrix
             rot_matrix = np.eye(4)
@@ -335,8 +498,17 @@ class PathPlannerService(Node):
             quat = quaternion_from_matrix(rot_matrix)
 
             pose = Pose()
-            pose.position = Point(*position)
-            pose.orienation = Quaternion(*quat)
+            pose.position = Point(
+                x=float(position[0]),
+                y=float(position[1]), 
+                z=float(position[2])
+            )
+            pose.orientation = Quaternion(
+                x=float(quat[0]), 
+                y=float(quat[1]), 
+                z=float(quat[2]), 
+                w=float(quat[3])
+            )
 
             pose_array.poses.append(pose)
         

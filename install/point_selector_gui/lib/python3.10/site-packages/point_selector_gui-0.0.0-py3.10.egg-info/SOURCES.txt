@@ -8,6 +8,8 @@ setup.py
 ../../build/point_selector_gui/point_selector_gui.egg-info/requires.txt
 ../../build/point_selector_gui/point_selector_gui.egg-info/top_level.txt
 ../../build/point_selector_gui/point_selector_gui.egg-info/zip-safe
+config/point_selector_params.yaml
+launch/point_selector_launch.py
 point_selector_gui/__init__.py
 point_selector_gui/point_selector_node.py
 resource/point_selector_gui

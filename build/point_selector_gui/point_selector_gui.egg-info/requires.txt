@@ -1,1 +1,4 @@
+numpy
+opencv-python
+pyrealsense2
 setuptools

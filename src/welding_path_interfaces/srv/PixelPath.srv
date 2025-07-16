@@ -1,5 +1,4 @@
-int32[2] pixel_start
-int32[2] pixel_end
+welding_path_interfaces/Pixel[] clicked_points
 ---
 bool success
 string message
