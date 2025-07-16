@@ -22,6 +22,7 @@ class PointSelector(Node):
 
     def __init__(self):
         super().__init__('point_selector_node')
+        self.get_logger().info("Point Selector Node started successfully.")
 
         self.declare_parameter('num_clicked_points', 2)  # default = 2
 
@@ -78,9 +79,6 @@ class PointSelector(Node):
         
         Returns None
         """
-        
-        # print("Colour info recieved!")
-
         self.color_image = msg
 
         # convert ros img format to opencv format (numpy array)
@@ -112,32 +110,27 @@ class PointSelector(Node):
             None
         """
         if (event == cv.EVENT_LBUTTONDOWN):
-            print(f"Mouse clicked at ({u}, {v})")
-
-            # self.clicked_points.append([u, v])
+            self.get_logger().info(f"User clicked at pixel ({u}, {v})")
             self.clicked_points.append(Pixel(x=u, y=v))
 
             if (
                 len(self.clicked_points) >= self.get_parameter('num_clicked_points').value
             ):
-                print("Max num clicks reached")
+                self.get_logger().info("Number of clicks required has been reached. \nRequesting Path Planning.")
 
                 # destroy window and disable callbacks
                 cv.destroyWindow('RGB Stream')
                 cv.setMouseCallback('RGB Stream', lambda *args : None)
 
                 # send request to path_planner node
-                # self.send_request(self.clicked_points[0], self.clicked_points[1])
                 self.send_request(self.clicked_points)
     
 
 def main(args=None) -> None:
-    rclpy.init(args=args)   # init ros2 python client lib
-    print("Hello from point selector main!")
-
+    rclpy.init(args=args)
     pointSelector = PointSelector()
 
-    rclpy.spin(pointSelector)   # keeps node alive and handles callbacks
+    rclpy.spin(pointSelector)
 
     pointSelector.destroy_node()
     rclpy.shutdown()

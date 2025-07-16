@@ -20,12 +20,10 @@ class PathPlannerService(Node):
 
     def __init__(self):
         super().__init__('path_planner_node')
-        print("Hello from pathPlanner Node")
+        self.get_logger().info("Path Planner Node has started successfully.")
 
         self.declare_parameter('num_interpolated_points', 30)
         self.declare_parameter('point_jump_threshold', 0.05)
-
-        # cache initial values (optional)
 
         # Initialise service to recieve path planning requests
         self.srv = self.create_service(
@@ -135,43 +133,30 @@ class PathPlannerService(Node):
             response: The service response object indicating success and
                         feedback to client.
         """
+        self.get_logger().info("Path planning request recieved")
 
-        print("====Request Recieved!====")
-        print("Clicked points:")
-        for pixel in request.clicked_points:
-            print(f"Recv Pixel: ({pixel.x}, {pixel.y})")
-
-        pixel_start = (request.clicked_points[0].x, request.clicked_points[0].y)
-        pixel_end = (request.clicked_points[1].x, request.clicked_points[1].y)
-
-        print(f"Point A: {pixel_start} -> Point B: {pixel_end}")
-    
-        # path planning
-        # pixel_path = self.calculate_2d_path(pixel_start, pixel_end)
         pixel_path = self.calculate_2d_path(request.clicked_points)
-        print("___2D Linear Path___")
-        print(pixel_path)
+        self.get_logger().debug("___2D Point Path___")
+        self.get_logger().debug(str(pixel_path))
 
         point_path = self.calculate_3d_path(pixel_path)
-
-        print("___3D Linear Path___")
-        print(point_path)
+        self.get_logger().debug("___3D Point Path___")
+        self.get_logger().debug(str(point_path))
 
         filtered_point_path = self.filter_point_path(point_path, pixel_path)
-        print("___3D Filtered Point Path___")
-        print(filtered_point_path)
+        self.get_logger().debug("___3D Filtered Point Path___")
+        self.get_logger().debug(str(filtered_point_path))
 
         self.detect_invalid_path(point_path)
 
-        # find poses of each point on 3d path
         pose_array = self.generate_pose_array(point_path)
         self.pose_array_pub.publish(pose_array)
-        print(f"Published Pose Array with {len(pose_array.poses)}!")
+        # print(f"Published Pose Array with {len(pose_array.poses)}!")
 
         # response?
         # if success -> response: response.success = True ...
         response.success = True
-        response.message = "====Recieved 2x 2D pixel coordinates===="
+        response.message = "..."
         return response
 
     def filter_point_path(self, point_path, pixel_path):
@@ -198,12 +183,12 @@ class PathPlannerService(Node):
 
             x, y, z = point_path[i]
             if (x == 0) and (y == 0) and (z == 0):
-                print(f"Invalid point at index {i}")
+                self.get_logger().debug(f"Invalid point at index {i}")
                 replaced = False
 
                 col, row = pixel_path[i]
                 for dcol, drow in offsets:
-                    print(f"Searching dcol: {dcol} drow: {drow}")
+                    self.get_logger().debug(f"Searching dcol: {dcol} drow: {drow}")
                     new_row = row + drow
                     new_col = col + dcol
 
@@ -216,8 +201,8 @@ class PathPlannerService(Node):
                             replaced = True
                             break
 
-                if not replaced:    # how to handle this?
-                    print(f"Failed to replace point at index {i}")
+                if not replaced:
+                    self.get_logger().debug(f"Failed to replace point at index {i}")
         
         return point_path
 
@@ -242,8 +227,8 @@ class PathPlannerService(Node):
             
             euclidean_dist = np.linalg.norm(np.subtract(next_point, curr_point))            
             if (euclidean_dist > jump_threshold):
-                print("!Jump Threshold Exceeded!")
-                print(f"Distance: {euclidean_dist} between points: {i} and {i+1}")
+                self.get_logger().error("Point Jump Threshold Exceeded")
+                self.get_logger().error(f"Distance: {euclidean_dist} between points: {i} and {i+1}")
 
                 return False
         return True
@@ -292,56 +277,6 @@ class PathPlannerService(Node):
             tangents.append(tangent)
         
         return tangents
-
-    def compute_normal_vectors(self, point_path, radius=0.02, max_nn=30):
-        """
-        Computes surface normals at each 3D point in the path by referencing
-        the full point cloud.
-
-        Args:
-            point_path (List[Tuple[float, float, float]]): The 3D coordinates
-                                                            of the path.
-            radius (float): Radius for normal estimation search.
-            max_nn (int): Maximum number of neighbours for normal estimation.
-        
-        Returns:
-            List[np.ndarray or None]: Estimated normals for each 3D point in 
-                                        point_path; None if point is invalid.
-
-        """
-        open3d_point_cloud = self.pointcloud2_to_open3d()
-
-        # compute surface normals for each point in full cloud
-        open3d_point_cloud.estimate_normals(
-            search_param=o3d.geometry.KDTreeSearchParamHybrid(
-                radius=radius, 
-                max_nn=max_nn
-            )
-        )
-
-        # ensures all normals point in the same hemisphere
-        open3d_point_cloud.orient_normals_consistent_tangent_plane(k=max_nn)
-
-        kdtree = o3d.geometry.KDTreeFlann(open3d_point_cloud)
-
-        normals = []
-        for point in point_path:
-            if (point == (0, 0, 0)):    # skip invalid points
-                normals.append(None)
-                continue
-            
-            point_np = np.array(point)
-
-            # finds index of closest point in full cloud to point_np
-            [_, idxs, _] = kdtree.search_knn_vector_3d(point_np, 1)
-
-            if (idxs):
-                normal = np.asarray(open3d_point_cloud.normals)[idxs[0]]
-                normals.append(normal)
-            else:
-                normals.append(None)
-        
-        return normals
 
     def estimate_normal_vectors(
         self, 
@@ -455,20 +390,12 @@ class PathPlannerService(Node):
         """
 
         tangents = self.compute_tangent_vectors(point_path)
-        print("___Tangents___")
-        print(tangents)
+        self.get_logger().debug("__Tangent Vectors for each point__")
+        self.get_logger().debug(str(tangents))
 
-        # start = time.time()
-        # calculated_normals = self.compute_normal_vectors(point_path)
-        # end = time.time()
-        # print(f"___Calculated Normals {end - start:.4f}___")
-        # print(calculated_normals)
-
-        start_time = time.time()
         normals = self.estimate_normal_vectors(point_path)
-        end_time = time.time()
-        print(f"__Estimated Normals: {end_time - start_time:.4f}__")
-        print(normals)
+        self.get_logger().debug("__Normal Vectors for each point__")
+        self.get_logger().debug(str(normals))
 
         pose_array = PoseArray()
         pose_array.header.frame_id = "camera_depth_optical_frame"
@@ -581,8 +508,6 @@ class PathPlannerService(Node):
         return linear_3d_coordinates
 
     def point_cloud_callback(self, point_cloud_msg) -> None:
-        # print("Recieved point_cloud_msg!")
-
         self.point_cloud_msg = point_cloud_msg
         return None
     
