@@ -1,0 +1,4 @@
+path_planner_node:
+  ros__parameters:
+    num_interpolated_points: 25
+    point_jump_threshold: 0.06

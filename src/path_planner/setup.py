@@ -14,10 +14,13 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', [
             'launch/path_planner_launch.py',
-            'launch/point_selector_launch.py'
+            'launch/point_selector_launch.py',
+            'launch/full_system_launch.py'
         ]),
         ('share/' + package_name + '/config', [
-            'config/point_selector_params.yaml'
+            'config/point_selector_params.yaml',
+            'config/realsense_config.yaml',
+            'config/path_planner_params.yaml'
         ]),
     ],
     install_requires=[

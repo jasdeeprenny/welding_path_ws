@@ -1,0 +1,27 @@
+enable_color: true
+enable_depth: true
+
+pointcloud:
+  enable: true
+  ordered_pc: true
+  pointcloud_qos: SENSOR_DATA
+
+align_depth:
+  enable: false
+
+color_qos: SENSOR_DATA
+depth_qos: SENSOR_DATA
+
+publish_tf: true
+tf_publish_rate: 10.0
+
+depth_module:
+  depth_profile: "1280x720x15"
+  visual_preset: 2
+
+rgb_camera:
+  color_profile: "1280x720x15"
+
+hole_filling_filter:
+  enable: true
+  holes_fill: 1

@@ -6,25 +6,22 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
+    config_dir = os.path.join(
+        get_package_share_directory('path_planner'), 'config'
+    )
+    default_config = os.path.join(config_dir, 'path_planner_params.yaml')
+
     return LaunchDescription([
         DeclareLaunchArgument(
-            'num_interpolated_points',
-            default_value='30',
-            description='Number of interpolated points on 2d path'
-        ),
-        DeclareLaunchArgument(
-            'point_jump_threshold',
-            default_value='0.05',
-            description='Threshold of invalid euclidean distance between 3d points in 3d path'
+            'params_file',
+            default_value=default_config,
+            description='Full path to YAML config file for the node'
         ),
         Node(
             package='path_planner',
             executable='path_planner',
             name='path_planner_node',
             output='screen',
-            parameters=[{
-                'num_interpolated_points': LaunchConfiguration('num_interpolated_points'),
-                'point_jump_threshold': LaunchConfiguration('point_jump_threshold')
-            }]
+            parameters=[LaunchConfiguration('params_file')]
         )
     ])
