@@ -13,7 +13,6 @@ from cv_bridge import CvBridge
 import cv2 as cv
 
 import numpy as np
-import pyrealsense2 as rs
 
 from rclpy.qos import qos_profile_sensor_data
 

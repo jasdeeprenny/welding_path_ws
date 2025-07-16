@@ -350,31 +350,31 @@ class PathPlannerService(Node):
         min_nn=5,
         viewpoint=np.array([0, 0, 0])
     ):
-    """
-    Estimates surface normal vectors for 3D points in point_path using local
-    Principle Component Analysis (PCA).
+        """
+        Estimates surface normal vectors for 3D points in point_path using local
+        Principle Component Analysis (PCA).
 
-    For each 3D point in point_path, this method:
-        Searches neighbouring points within a specified radius in the
-            point_cloud.
-        Computes the covarianec matrix of the neighbourhood.
-        Extracts the normal vector as the eigenvector with the smallest 
-            eigenvalue.
-        Orients the normal to face toward the viewpoint (the camera frame's
-            origin).
+        For each 3D point in point_path, this method:
+            Searches neighbouring points within a specified radius in the
+                point_cloud.
+            Computes the covarianec matrix of the neighbourhood.
+            Extracts the normal vector as the eigenvector with the smallest 
+                eigenvalue.
+            Orients the normal to face toward the viewpoint (the camera frame's
+                origin).
 
-    If a point is invalid (0, 0, 0), None is returned as the normal for that 
-    point.
+        If a point is invalid (0, 0, 0), None is returned as the normal for that 
+        point.
 
-    Args:
-        point_path: List of 3D coordinates for which normals are estimated.
-        radius: Search radius for neighbouring points (meters).
-        min_nn: Minimum number of neighbours required to estimate normal.
-        viewpoint: 3D vector indicating viewpoint to orient normals towards.
-    
-    Returns:
-        A list of normal vectors for each point in point_path.
-    """
+        Args:
+            point_path: List of 3D coordinates for which normals are estimated.
+            radius: Search radius for neighbouring points (meters).
+            min_nn: Minimum number of neighbours required to estimate normal.
+            viewpoint: 3D vector indicating viewpoint to orient normals towards.
+        
+        Returns:
+            A list of normal vectors for each point in point_path.
+        """
 
         open3d_point_cloud = self.pointcloud2_to_open3d()
         kdtree = o3d.geometry.KDTreeFlann(open3d_point_cloud)
